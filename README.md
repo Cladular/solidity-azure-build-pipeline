@@ -1,0 +1,1 @@
+# solidy-azure-build-pipeline
