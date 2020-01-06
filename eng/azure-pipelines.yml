@@ -1,0 +1,33 @@
+trigger:
+- master
+
+variables:
+  contractName: 'SimpleExample'
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: Npm@1
+  inputs:
+    command: 'install'
+  displayName: npm install
+
+- script: |
+    cd src
+    npx truffle compile contracts/$(contractName).sol
+  displayName: truffle compile $(contractName)
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(System.DefaultWorkingDirectory)/src/build/contracts/$(contractName).json'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$(contractName)-$(Build.BuildId).zip'
+  displayName: archive contract $(contractName)
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)/$(contractName)-$(Build.BuildId).zip'
+    ArtifactName: $(contractName)-drop-$(Build.BuildId)
+  displayName: publish contract $(contractName)
